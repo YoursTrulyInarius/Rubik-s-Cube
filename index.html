@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en" data-theme="sage">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f6f7f2">
+    <meta name="description" content="A calm, visual, step-by-step guide to solving a Rubik's Cube. Learn the beginner method, one move at a time.">
+    <title>Cube Theory — The beginner’s guide to solving a cube</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <!-- Dynamic Ambient Background with floating particles & cursor glow -->
+    <div class="bg-particles-container" aria-hidden="true" id="bg-particles"></div>
+    <div class="cursor-glow" id="cursor-glow" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="#home" aria-label="Cube Theory home">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+        <span>cube<span class="brand-light">theory</span></span>
+      </a>
+
+      <div class="topbar-actions">
+        <!-- Sound FX toggle -->
+        <button class="topbar-btn sound-toggle-btn" id="sound-toggle" type="button" aria-label="Toggle sound effects" title="Toggle sound effects">
+          <span class="btn-icon" id="sound-icon">🔊</span>
+          <span class="btn-text">Sound</span>
+        </button>
+
+        <!-- Theme Selector -->
+        <div class="theme-picker" id="theme-picker" role="radiogroup" aria-label="Theme color scheme">
+          <button class="theme-btn is-active" data-theme="sage" type="button" title="Sage Minimalist">🌿</button>
+          <button class="theme-btn" data-theme="midnight" type="button" title="Midnight Aurora">🌌</button>
+          <button class="theme-btn" data-theme="sunset" type="button" title="Sunset Prism">🌅</button>
+          <button class="theme-btn" data-theme="cyber" type="button" title="Cyber Glass">🔷</button>
+        </div>
+
+        <a class="topbar-link" href="#method">The beginner method <span aria-hidden="true">↗</span></a>
+      </div>
+    </header>
+
+    <main id="home">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="eyebrow-dot"></span> YOUR FIRST SOLVE STARTS HERE</div>
+          <h1 id="hero-title">A little less<br>scramble. <span>A lot more</span><br>“I did it.”</h1>
+          <p class="hero-description">The cube looks complicated. Solving it isn’t. Follow seven clear steps, learn a few simple moves, and get every piece home.</p>
+          
+          <div class="hero-cta-group">
+            <a class="primary-button" href="#method">Let’s solve this <span aria-hidden="true">↓</span></a>
+          </div>
+
+          <div class="hero-note"><span class="note-icon" aria-hidden="true">✳</span> No experience needed. Promise.</div>
+        </div>
+
+        <div class="hero-art" aria-label="A colorful three-dimensional Rubik's Cube">
+          <div class="art-orbit orbit-one"></div>
+          <div class="art-orbit orbit-two"></div>
+          <div class="art-orbit orbit-three"></div>
+          <div class="float-note note-top"><span class="float-note-dot"></span> ONE MOVE AT A TIME</div>
+          
+          <div class="cube-wrap" id="cube-wrap">
+            <div class="cube3d" id="cube3d" role="group" tabindex="0" aria-label="Interactive cube view. Drag, or use the arrow keys, to rotate.">
+              <div class="cube-face face-front" data-face="front"></div>
+              <div class="cube-face face-right" data-face="right"></div>
+              <div class="cube-face face-top" data-face="top"></div>
+              <div class="cube-face face-left" data-face="left"></div>
+              <div class="cube-face face-bottom" data-face="bottom"></div>
+              <div class="cube-face face-back" data-face="back"></div>
+            </div>
+          </div>
+          
+          <div class="cube-controls" aria-label="Cube view controls">
+            <span>DRAG OR PRESS ARROW KEYS</span>
+            <button id="rotate-cube-button" type="button" aria-label="Rotate cube view" title="Rotate cube view">↻</button>
+            <button id="spin-cube-button" type="button" aria-label="Pause cube animation" aria-pressed="true" title="Pause cube animation">Ⅱ</button>
+          </div>
+          
+          <div class="float-note note-bottom"><span class="note-cube" aria-hidden="true">▦</span> Six sides. One happy ending.</div>
+          <div class="art-sparkle sparkle-one" aria-hidden="true">✳</div>
+          <div class="art-sparkle sparkle-two" aria-hidden="true">✦</div>
+          <div class="art-sparkle sparkle-three" aria-hidden="true">✴</div>
+        </div>
+        
+        <a class="scroll-cue" href="#method"><span></span> SCROLL TO BEGIN</a>
+      </section>
+
+      <section class="method-section" id="method" aria-labelledby="method-heading">
+        <div class="section-intro">
+          <div>
+            <div class="eyebrow"><span class="eyebrow-dot"></span> THE BEGINNER METHOD</div>
+            <h2 id="method-heading">Seven steps.<br><span>One solved cube.</span></h2>
+          </div>
+          <p>Solve the bottom first, then the middle, then the top. Take one small step at a time.</p>
+        </div>
+
+        <div class="lesson-layout">
+          <aside class="step-sidebar" aria-label="Choose a solving step">
+            <div class="sidebar-caption">YOUR 7 STEPS <span id="sidebar-count">01 / 07</span></div>
+            <nav class="step-nav" id="step-nav" aria-label="Solving steps"></nav>
+            <div class="progress-card">
+              <div class="progress-heading"><span>YOUR PROGRESS</span><span id="progress-label">JUST GETTING STARTED</span></div>
+              <div class="progress-track" role="progressbar" aria-label="Lesson progress" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0" id="progress-bar"><span id="progress-fill"></span></div>
+              <p><span id="progress-number">0</span> of 7 steps completed</p>
+            </div>
+          </aside>
+
+          <article class="lesson-card" aria-live="polite">
+            <div class="lesson-main">
+              <div class="lesson-meta"><span class="step-tag" id="step-tag">STEP 01</span><span class="lesson-time" id="lesson-time">ABOUT 5 MIN</span></div>
+              <h3 id="step-title"></h3>
+              <p class="lesson-description" id="step-description"></p>
+
+              <div class="checklist-block">
+                <div class="checklist-heading"><span>THREE SMALL THINGS TO DO</span><span id="checklist-progress">0 / 3</span></div>
+                <div class="step-checklist" id="step-checklist"></div>
+                <p class="completion-message" id="completion-message" role="status" aria-live="polite" hidden></p>
+              </div>
+
+              <div class="algorithm-block" id="algorithm-block">
+                <div class="algorithm-heading">
+                  <span>MOVE PATTERN</span>
+                  <div class="algorithm-heading-right">
+                    <span class="algorithm-hint">Tap play to see each move</span>
+                    <span class="algorithm-choices" id="algorithm-choices"></span>
+                  </div>
+                </div>
+                <div class="algorithm-line" id="algorithm-line" aria-label="Algorithm"></div>
+
+                <!-- Dynamic Twist & Push Action Hint Card -->
+                <div class="twist-hint-card" id="twist-hint-card">
+                  <div class="twist-hint-badge" id="twist-hint-badge">
+                    <span class="twist-icon" id="twist-icon">🎯</span>
+                    <span class="twist-action-title" id="twist-action-title">READY TO MOVE</span>
+                  </div>
+                  <div class="twist-hint-instruction" id="twist-hint-instruction">
+                    Tap any move token above or press Play to see exactly where and which direction to twist.
+                  </div>
+                </div>
+
+                <div class="notation-note"><strong>R</strong> right · <strong>L</strong> left · <strong>U</strong> top · <strong>D</strong> bottom · <strong>F</strong> front. Turn the named side clockwise as you look at it. <strong>′</strong> means turn the other way; <strong>2</strong> means turn twice.</div>
+                <div class="move-toolbar">
+                  <button class="play-button" id="play-button" type="button">
+                    <span class="play-icon" id="play-icon" aria-hidden="true">▶</span>
+                    <span id="play-label">Play moves</span>
+                  </button>
+                  <div class="move-navigation" id="move-navigation">
+                    <button class="move-nav-button" id="move-prev-button" type="button" aria-label="Previous move" title="Previous move">←</button>
+                    <span id="move-counter" aria-live="polite">MOVE 0 / 0</span>
+                    <button class="move-nav-button" id="move-next-button" type="button" aria-label="Next move" title="Next move">→</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tip-card"><span class="tip-icon" aria-hidden="true">✦</span><div><span class="tip-label">HELPFUL TIP</span><p id="step-tip"></p></div></div>
+
+              <div class="lesson-footer">
+                <button class="text-button prev-button" id="prev-button" type="button"><span aria-hidden="true">←</span> Previous</button>
+                <button class="next-button" id="next-button" type="button">Next step <span aria-hidden="true">→</span></button>
+              </div>
+            </div>
+
+            <aside class="visual-panel" aria-label="Cube illustration for this step">
+              <div class="visual-topline">
+                <span>PICTURE THIS</span>
+                <span class="visual-live" aria-live="polite"><i class="live-dot"></i><span id="active-face-label-text">STEP TARGET</span></span>
+              </div>
+              <div class="diagram-stage" id="diagram-stage">
+                <div class="diagram-glow"></div>
+                
+                <div class="mini-cube" id="mini-cube" role="img" aria-label="White cross target pattern">
+                  <span class="mini-tile" data-tile="0"></span><span class="mini-tile" data-tile="1"></span><span class="mini-tile" data-tile="2"></span>
+                  <span class="mini-tile" data-tile="3"></span><span class="mini-tile" data-tile="4"></span><span class="mini-tile" data-tile="5"></span>
+                  <span class="mini-tile" data-tile="6"></span><span class="mini-tile" data-tile="7"></span><span class="mini-tile" data-tile="8"></span>
+
+                  <!-- Visual Directional Twist/Push Overlay on Mini Cube -->
+                  <div class="twist-overlay" id="twist-overlay" aria-hidden="true">
+                    <svg class="twist-arrow-svg" id="twist-arrow-svg" viewBox="0 0 100 100" fill="none">
+                      <path class="twist-arrow-path" id="twist-arrow-path" d="M15,20 Q50,5 85,20" stroke="var(--green)" stroke-width="4" stroke-linecap="round" />
+                      <polygon class="twist-arrow-head" id="twist-arrow-head" points="80,12 90,20 80,28" fill="var(--green)" />
+                    </svg>
+                    <span class="twist-cue-tag" id="twist-cue-tag">FLICK TOP LEFT</span>
+                  </div>
+                </div>
+
+                <span class="diagram-marker marker-top" aria-hidden="true">↑</span>
+                <span class="diagram-marker marker-right" aria-hidden="true">→</span>
+              </div>
+              <div class="diagram-caption"><span class="caption-mark" aria-hidden="true">✳</span><span id="diagram-caption">A white cross, with each edge lined up to its matching center.</span></div>
+              <div class="visual-divider"></div>
+              <div class="color-key-title">CUBE COLOR KEY</div>
+              <div class="color-key">
+                <span><i class="key-swatch swatch-white"></i> White</span>
+                <span><i class="key-swatch swatch-yellow"></i> Yellow</span>
+                <span><i class="key-swatch swatch-green"></i> Green</span>
+                <span><i class="key-swatch swatch-blue"></i> Blue</span>
+                <span><i class="key-swatch swatch-orange"></i> Orange</span>
+                <span><i class="key-swatch swatch-red"></i> Red</span>
+              </div>
+              <div class="keep-note"><span aria-hidden="true">◎</span><span>A corner has 3 stickers. An edge has 2. The middle squares show where the colors go.</span></div>
+            </aside>
+          </article>
+        </div>
+        <footer class="page-footer">
+          <a class="brand footer-brand" href="#home">
+            <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+            <span>cube<span class="brand-light">theory</span></span>
+          </a>
+          <span>Take your time. Every cube gets there.</span>
+          <a href="#home">BACK TO TOP ↑</a>
+        </footer>
+      </section>
+    </main>
+  </body>
+</html>
