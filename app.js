@@ -99,6 +99,12 @@ const state = {
   soundEnabled: true,
   cubeX: -27,
   cubeY: -39,
+  cubelets: [],
+  cubeSpinAnimation: null,
+  cubeTurnTimer: null,
+  cubeTurnAnimation: null,
+  cubeTurnActive: false,
+  cubeMotionRunning: false,
   pointer: null
 };
 
@@ -179,6 +185,8 @@ const miniCube = document.querySelector("#mini-cube");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const cubeWrap = document.querySelector("#cube-wrap");
 const cube3d = document.querySelector("#cube3d");
+const cubeRotor = document.createElement("div");
+cubeRotor.className = "cube-rotor";
 const playIcon = document.querySelector("#play-icon");
 const playLabel = document.querySelector("#play-label");
 const cursorGlow = document.querySelector("#cursor-glow");
@@ -254,23 +262,66 @@ function initThemeAndSound() {
    ------------------------------------------------------------------------- */
 function makeHeroCube() {
   const faceColors = {
-    front: "var(--cube-red)",
-    right: "var(--cube-orange)",
-    top: "var(--cube-white)",
-    left: "var(--cube-green)",
-    bottom: "var(--cube-yellow)",
-    back: "var(--cube-blue)"
+    "0,0,1": "var(--cube-red)",
+    "0,0,-1": "var(--cube-blue)",
+    "1,0,0": "var(--cube-orange)",
+    "-1,0,0": "var(--cube-green)",
+    "0,-1,0": "var(--cube-white)",
+    "0,1,0": "var(--cube-yellow)"
+  };
+  const cubelets = [];
+  const cubeletSize = 70;
+  const spacing = cubeletSize;
+  const faceClasses = {
+    "0,0,1": "front",
+    "0,0,-1": "back",
+    "1,0,0": "right",
+    "-1,0,0": "left",
+    "0,-1,0": "top",
+    "0,1,0": "bottom"
   };
 
-  document.querySelectorAll(".cube-face").forEach(face => {
-    face.replaceChildren();
-    const color = faceColors[face.dataset.face] || "var(--cube-green)";
-    for (let index = 0; index < 9; index += 1) {
-      const sticker = document.createElement("span");
-      sticker.style.backgroundColor = color;
-      face.append(sticker);
+  for (let x = -1; x <= 1; x += 1) {
+    for (let y = -1; y <= 1; y += 1) {
+      for (let z = -1; z <= 1; z += 1) {
+        const cubelet = {
+          position: { x, y, z },
+          stickers: []
+        };
+        [[0, 0, 1], [0, 0, -1], [1, 0, 0], [-1, 0, 0], [0, -1, 0], [0, 1, 0]].forEach(normal => {
+          const [nx, ny, nz] = normal;
+          if ((nx && x === nx) || (ny && y === ny) || (nz && z === nz)) {
+            cubelet.stickers.push({
+              normal: { x: nx, y: ny, z: nz },
+              color: faceColors[normal.join(",")]
+            });
+          }
+        });
+
+        const element = document.createElement("div");
+        element.className = "cubelet";
+        element.style.setProperty("--cubelet-size", `${cubeletSize}px`);
+        cubelet.element = element;
+        renderCubelet(cubelet, spacing, faceClasses);
+        cubelets.push(cubelet);
+      }
     }
-  });
+  }
+
+  cubeRotor.replaceChildren(...cubelets.map(cubelet => cubelet.element));
+  cube3d.replaceChildren(cubeRotor);
+  state.cubelets = cubelets;
+}
+
+function renderCubelet(cubelet, spacing, faceClasses) {
+  const { x, y, z } = cubelet.position;
+  cubelet.element.style.transform = `translate3d(${x * spacing}px, ${y * spacing}px, ${z * spacing}px)`;
+  cubelet.element.replaceChildren(...cubelet.stickers.map(({ normal, color }) => {
+    const sticker = document.createElement("span");
+    sticker.className = `cube-sticker sticker-${faceClasses[`${normal.x},${normal.y},${normal.z}`]}`;
+    sticker.style.setProperty("--sticker-color", color);
+    return sticker;
+  }));
 }
 
 function makeNav() {
@@ -688,19 +739,106 @@ function setCubeView() {
   cube3d.classList.add("is-user-controlled");
 }
 
-function stopCubeSpin() {
-  cube3d.classList.add("is-user-controlled");
+function updateCubeMotionButton(isPlaying) {
   const spinButton = document.querySelector("#spin-cube-button");
-  spinButton.setAttribute("aria-pressed", "false");
-  spinButton.setAttribute("aria-label", "Resume cube animation");
-  spinButton.title = "Resume cube animation";
-  spinButton.textContent = "▶";
+  spinButton.setAttribute("aria-pressed", String(isPlaying));
+  spinButton.setAttribute("aria-label", isPlaying ? "Pause cube rearrangement" : "Resume cube rearrangement");
+  spinButton.title = isPlaying ? "Pause cube rearrangement" : "Resume cube rearrangement";
+  spinButton.textContent = isPlaying ? "Ⅱ" : "▶";
+}
+
+function startCubeMotion() {
+  state.cubeMotionRunning = true;
+  cubeWrap.classList.remove("is-paused");
+  cube3d.classList.add("is-user-controlled");
+  setCubeView();
+  if (state.cubeSpinAnimation) {
+    state.cubeSpinAnimation.play();
+  } else {
+    state.cubeSpinAnimation = cubeRotor.animate([
+      { transform: "rotateY(0deg)" },
+      { transform: "rotateY(360deg)" }
+    ], { duration: 18000, iterations: Infinity, easing: "linear" });
+  }
+  updateCubeMotionButton(true);
+  if (state.cubeTurnAnimation) state.cubeTurnAnimation.play();
+  else runCubeTurn();
+}
+
+function stopCubeMotion() {
+  state.cubeMotionRunning = false;
+  window.clearTimeout(state.cubeTurnTimer);
+  state.cubeTurnTimer = null;
+  if (state.cubeSpinAnimation?.playState === "running") state.cubeSpinAnimation.pause();
+  if (state.cubeTurnAnimation?.playState === "running") state.cubeTurnAnimation.pause();
+  cubeWrap.classList.add("is-paused");
+  updateCubeMotionButton(false);
+}
+
+function rotateVector(vector, axis, direction) {
+  const { x, y, z } = vector;
+  if (axis === "x") return direction > 0 ? { x, y: -z, z: y } : { x, y: z, z: -y };
+  if (axis === "y") return direction > 0 ? { x: z, y, z: -x } : { x: -z, y, z: x };
+  return direction > 0 ? { x: -y, y: x, z } : { x: y, y: -x, z };
+}
+
+function finishCubeTurn(turn) {
+  if (!state.cubeTurnActive || !state.cubeMotionRunning) return;
+  const faceClasses = {
+    "0,0,1": "front",
+    "0,0,-1": "back",
+    "1,0,0": "right",
+    "-1,0,0": "left",
+    "0,-1,0": "top",
+    "0,1,0": "bottom"
+  };
+  state.cubeTurnAnimation = null;
+  state.cubeTurnActive = false;
+
+  state.cubelets.forEach(cubelet => {
+    const coordinate = cubelet.position[turn.axis];
+    if (coordinate === turn.layer) {
+      cubelet.position = rotateVector(cubelet.position, turn.axis, turn.direction);
+      cubelet.stickers.forEach(sticker => {
+        sticker.normal = rotateVector(sticker.normal, turn.axis, turn.direction);
+      });
+    }
+    renderCubelet(cubelet, 70, faceClasses);
+    cubeRotor.append(cubelet.element);
+  });
+  cubeRotor.querySelector(".cube-turn-layer")?.remove();
+  state.cubeTurnTimer = window.setTimeout(runCubeTurn, 420);
+}
+
+function runCubeTurn() {
+  if (!state.cubeMotionRunning || state.cubeTurnActive) return;
+  const turns = [
+    { axis: "x", layer: -1 }, { axis: "x", layer: 1 },
+    { axis: "y", layer: -1 }, { axis: "y", layer: 1 },
+    { axis: "z", layer: -1 }, { axis: "z", layer: 1 }
+  ];
+  const turn = turns[Math.floor(Math.random() * turns.length)];
+  turn.direction = Math.random() < 0.5 ? -1 : 1;
+  const layer = document.createElement("div");
+  layer.className = "cube-turn-layer";
+  cubeRotor.append(layer);
+  state.cubelets.forEach(cubelet => {
+    if (cubelet.position[turn.axis] === turn.layer) layer.append(cubelet.element);
+  });
+
+  const angle = turn.direction * 90;
+  const transform = `rotate${turn.axis.toUpperCase()}(${angle}deg)`;
+  state.cubeTurnActive = true;
+  state.cubeTurnAnimation = layer.animate(
+    [{ transform: "none" }, { transform }],
+    { duration: 720, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards" }
+  );
+  state.cubeTurnAnimation.onfinish = () => finishCubeTurn(turn);
 }
 
 function rotateCubeView(deltaX, deltaY) {
   state.cubeX = Math.max(-75, Math.min(75, state.cubeX + deltaX));
   state.cubeY += deltaY;
-  stopCubeSpin();
   setCubeView();
 }
 
@@ -769,18 +907,9 @@ document.querySelector("#rotate-cube-button").addEventListener("click", () => {
   sound.playTurn(500);
   rotateCubeView(0, 45);
 });
-document.querySelector("#spin-cube-button").addEventListener("click", event => {
-  const button = event.currentTarget;
-  const isSpinning = button.getAttribute("aria-pressed") === "true";
-  if (isSpinning) {
-    stopCubeSpin();
-  } else {
-    cube3d.classList.remove("is-user-controlled");
-    button.setAttribute("aria-pressed", "true");
-    button.setAttribute("aria-label", "Pause cube animation");
-    button.title = "Pause cube animation";
-    button.textContent = "Ⅱ";
-  }
+document.querySelector("#spin-cube-button").addEventListener("click", () => {
+  if (state.cubeMotionRunning) stopCubeMotion();
+  else startCubeMotion();
 });
 cubeWrap.addEventListener("pointerdown", event => {
   state.pointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
@@ -806,4 +935,12 @@ cubeWrap.addEventListener("keydown", event => {
   if (!rotations[event.key]) return;
   event.preventDefault();
   rotateCubeView(...rotations[event.key]);
+});
+
+startCubeMotion();
+
+reducedMotion.addEventListener("change", event => {
+  if (event.matches && state.cubeMotionRunning) {
+    stopCubeMotion();
+  }
 });

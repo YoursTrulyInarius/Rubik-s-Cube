@@ -31,9 +31,9 @@ Follow the instructions and diagrams for the current step. The checklist is a pe
 - Check off lesson tasks to track completed steps and overall progress.
 - Play, pause, and resume move-by-move demonstrations. Select an individual move or use the previous/next move buttons to review it.
 - Choose the left or right insertion pattern for the middle layer, or a direction for the final edge cycle.
-- Drag the large cube to change its viewing angle. The rotate and animation buttons provide additional controls; keyboard users can focus the cube and use the arrow keys.
+- Watch the large cube spin continuously as its layers rearrange: each face turn carries its nine cubelets and stickers together, like a real Rubik’s Cube. The cubelets touch with narrow black seams rather than extra gaps. Drag it or use the arrow keys to change your view while the cube keeps spinning; use the animation button to pause or resume motion, and the rotate button to turn the view by a quarter-turn.
 - Choose a color theme and toggle sound effects from the header. The selected theme is saved in this browser.
-- Animations honor the device's reduced-motion setting.
+- Most animations honor the device's reduced-motion setting. The requested cube spin and layer turns start automatically; use the pause button to stop them.
 
 ## Mobile support
 
