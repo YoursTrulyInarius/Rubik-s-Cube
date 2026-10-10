@@ -2,6 +2,14 @@
 
 Cube Theory is a visual, beginner-friendly guide to solving a standard 3×3 Rubik's Cube. It breaks the beginner method into seven short lessons, with plain-language instructions, illustrated targets, move patterns, and a checklist for each step.
 
+## Screenshots
+
+The landing page introduces the guide, and the lesson view walks through each step with an interactive checklist and cube illustration.
+
+![Cube Theory landing page with its interactive 3D cube](screenshots/homepage.png)
+
+![Beginner method lesson with the seven-step navigation, checklist, and cube target](screenshots/beginner-method.png)
+
 ## Open the guide
 
 This is a static website; no package installation or build step is required.
