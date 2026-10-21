@@ -1,5 +1,5 @@
 # Cube Theory
-
+aaa
 Cube Theory is a visual, beginner-friendly guide to solving a standard 3×3 Rubik's Cube. It breaks the beginner method into seven short lessons, with plain-language instructions, illustrated targets, move patterns, and a checklist for each step.
 
 ## Screenshots
